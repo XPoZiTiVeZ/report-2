@@ -279,26 +279,40 @@ $f_1$ и $f_2$   & -0.372021               \\ \hline
 .PHONY: all clean prepare
 
 CC = gcc
-CFLAGS = -m32 -O2 -Wall
 ASM = nasm
+LATEX = pdflatex
+
+CFLAGS = -m32 -Wall -g -no-pie
 ASMFLAGS = -f elf32
 
-all: program
+all: program report
 
-program: main.o methods.o functions.o
-	$(CC) $(CFLAGS) -o program main.o methods.o functions.o
+prepare:
+	sudo apt update
+	sudo apt install gcc gcc-multilib nasm texlive-latex-base texlive-lang-cyrillic texlive-pictures texlive-latex-recommended -y
+
+program: functions.o functions.h methods.o methods.h main.o
+	$(CC) $(CFLAGS) -o program functions.o methods.o main.o -lm
+
+functions.o: functions.asm functions.h
+	$(ASM) $(ASMFLAGS) functions.asm -o functions.o
+
+methods.o: methods.c methods.h functions.h
+	$(CC) $(CFLAGS) -c methods.c -o methods.o
 
 main.o: main.c methods.h functions.h
-	$(CC) $(CFLAGS) -c main.c
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
-methods.o: methods.c methods.h
-	$(CC) $(CFLAGS) -c methods.c
+report: report.tex
+	$(LATEX) report.tex
+	$(LATEX) report.tex
 
-functions.o: functions.asm
-	$(ASM) $(ASMFLAGS) -o functions.o functions.asm
+report.tar: functions.asm functions.h methods.c methods.h main.c nasm report.tex report.pdf Makefile
+	tar cvf report.tar functions.asm functions.h methods.c methods.h main.c nasm report.tex report.pdf Makefile
 
 clean:
 	rm -f *.o program
+	rm -f *.aux *.log *.toc *.out
 \end{lstlisting}
 
 В Makefile предусмотрена возможность задания компилятора для исходных файлов на языке C, а также ассемблерного компилятора вместе с соответствующими флагами сборки.  

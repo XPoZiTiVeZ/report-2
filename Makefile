@@ -7,7 +7,7 @@ LATEX = pdflatex
 CFLAGS = -m32 -Wall -g -no-pie
 ASMFLAGS = -f elf32
 
-all: program report
+all: program report archive
 
 prepare:
 	sudo apt update
@@ -29,6 +29,9 @@ report: report.tex
 	$(LATEX) report.tex
 	$(LATEX) report.tex # Для сборки оглавления
 
+archive: functions.asm functions.h methods.c methods.h main.c nasm report.tex report.pdf Makefile
+	tar cvf report.tar functions.asm functions.h methods.c methods.h main.c nasm report.tex report.pdf Makefile
+
 clean:
 	rm -f *.o program
-	rm -f *.aux *.log *.toc *.out
+	rm -f *.aux *.log *.toc *.out *.tar
