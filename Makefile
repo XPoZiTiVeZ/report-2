@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean prepare
 
 CC = gcc
 ASM = nasm
@@ -11,7 +11,7 @@ all: program report
 
 prepare:
 	sudo apt update
-	sudo apt install gcc gcc-multilib nasm texlive-latex-base texlive-lang-cyrillic texlive-latex-recommended -y
+	sudo apt install gcc gcc-multilib nasm texlive-latex-base texlive-lang-cyrillic texlive-pictures texlive-latex-recommended -y
 
 program: functions.o methods.o main.o
 	$(CC) $(CFLAGS) -o program functions.o methods.o main.o -lm

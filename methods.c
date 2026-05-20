@@ -2,9 +2,20 @@
 #include <stddef.h>
 #include "methods.h"
 
+/* 
+    Статическая переменная для хранения числа итераций последнего вызова функции root.
+    Используется для того, чтобы вернуть число итераций без изменения сигнатуры функции,
+    так как по заданию сигнатура строго фиксирована: root(f, g, a, b, eps).
+*/
+static int internal_iterations = 0;
+
+
+/*
+    Функция вычисления корня уравнения f(x) = g(x) на отрезке [a, b] с точностью eps1.
+    Используется метод деления отрезка пополам (дихотомии).
+    Если передать f == NULL, функция вернет число итераций, затраченных при предыдущем вызове.
+*/
 double root(double (*f)(double), double (*g)(double), double a, double b, double eps1) {
-    static int internal_iterations = 0;
-    
     if (f == NULL) {
         return (double)internal_iterations;
     }
@@ -19,6 +30,7 @@ double root(double (*f)(double), double (*g)(double), double a, double b, double
         double Fa = f(a) - g(a);
         double Fc = f(c) - g(c);
         
+        // Если функция меняет знак на левой половине отрезка
         if (Fa * Fc <= 0) {
             b = c;
         } else {
@@ -29,6 +41,10 @@ double root(double (*f)(double), double (*g)(double), double a, double b, double
     return (a + b) / 2.0;
 }
 
+/*
+    Функция вычисления определенного интеграла от функции f на отрезке [a, b] с точностью eps2.
+    Используется квадратурная формула Симпсона (парабол) с правилом Рунге для оценки погрешности.
+*/
 double integral(double (*f)(double), double a, double b, double eps2) {
     int n = 2;
     double I_n = 0.0;
@@ -49,7 +65,8 @@ double integral(double (*f)(double), double a, double b, double eps2) {
             }
         }
         I_2n = sum * h / 3.0;
-        
+
+        // Погрешность для метода Симпсона оценивается делением на 15 (правило Рунге, p=4)
     } while (n <= 4 || fabs(I_2n - I_n) / 15.0 >= eps2);
     
     return I_2n;

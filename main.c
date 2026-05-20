@@ -4,9 +4,15 @@
 #include "methods.h"
 #include "functions.h"
 
+// Точность вычисления корней
 const double EPS1 = 0.001;
-const double EPS2 = 0.000001;
+// Точность вычисления интегралов
+const double EPS2 = 0.0001;
 
+
+/*
+    Функция выбора математических функций по номеру
+*/
 double (*get_func_by_id(int id))(double) {
     if (id == 1) return f1;
     if (id == 2) return f2;
@@ -14,6 +20,9 @@ double (*get_func_by_id(int id))(double) {
     return NULL;
 }
 
+/*
+    Вывод меню подсказки
+*/
 void print_hint(void) {
     printf("Использование: ./program [<аргументы>]\n");
     printf("Опции:\n");
@@ -26,6 +35,9 @@ void print_hint(void) {
     printf("                   Тестирование функции integral\n");
 }
 
+/*
+    Тестирование функции нахождения пересечения данных функций на введённом интервале поиска
+*/
 void test_func(int i, int argc, char *argv[]) {
     int f_id = atoi(argv[i+2]);
     int g_id = atoi(argv[i+3]);
@@ -37,6 +49,9 @@ void test_func(int i, int argc, char *argv[]) {
     printf("Test root: %lf\n", res);
 }
 
+/*
+    Тестирование вычисления интеграла функции с собственным интервалом
+*/
 void test_int(int i, int argc, char *argv[]) {
     int f_id = atoi(argv[i+2]);
     double ta = atof(argv[i+3]);
@@ -51,7 +66,7 @@ int main(int argc, char *argv[]) {
     int print_roots = 0;
     int print_iters = 0;
     
-    for (int i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) { // Сканирование переданных аргументов
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             print_hint();
             return 0;
@@ -75,17 +90,19 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
         }
-    }
+    } 
 
+    // Поочерёдное вычисление пересечений между каждой парой функций
     double x1 = root(f1, f3, -5.0, -3.0, EPS1);
     int iters1 = (int)root(NULL, NULL, 0, 0, 0);
 
-    double x2 = root(f3, f2, -2.5, -1.0, EPS1);
+    double x2 = root(f3, f2, -2.5, -0.5, EPS1);
     int iters2 = (int)root(NULL, NULL, 0, 0, 0);
 
     double x3 = root(f1, f2, -1.0, -0.1, EPS1);
     int iters3 = (int)root(NULL, NULL, 0, 0, 0);
 
+    // Отладочная печать абсцисс точек пересечения при флаге
     if (print_roots) {
         printf("Точки пересечения:\n");
         printf("  f1 и f3: %lf\n", x1);
@@ -93,6 +110,7 @@ int main(int argc, char *argv[]) {
         printf("  f1 и f2: %lf\n", x3);
     }
 
+    // Отладочная печать количества итераций для вычисления результата с нужной точностью
     if (print_iters) {
         printf("Число итераций (root):\n");
         printf("  Для x1: %d\n", iters1);
@@ -100,10 +118,12 @@ int main(int argc, char *argv[]) {
         printf("  Для x3: %d\n", iters3);
     }
 
+    // Вычисление площадей по отдельности
     double int_top = integral(f1, x1, x3, EPS2);
     double int_bl = integral(f3, x1, x2, EPS2);
     double int_br = integral(f2, x2, x3, EPS2);
 
+    // Вычисление итоговой площади ограниченной данными фукнциями
     double area = int_top - (int_bl + int_br);
 
     printf("Площадь фигуры: %lf\n", area);
